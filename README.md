@@ -31,7 +31,7 @@ DERIVATIONINDEX=0
 
 ### **Step 1: Clone the Repository**
 ```sh
-git clone https://github.com/your-repo/wallet-app.git
-cd wallet-app
+git clone https://github.com/tecneuralhome/assessment.git
+cd assessment
 npm install
 node index.js
