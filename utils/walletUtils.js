@@ -1,3 +1,10 @@
+/**
+ * @file walletUtils.js
+ * @description Common utility functions for wallet operations.
+ * @author Jeya kumar
+ * @version 1.0.0
+ * @date 2025-02-06
+ */
 const bip39 = require("bip39");
 const config = require("../config/config");
 const bitcoin = require("bitcoinjs-lib");
@@ -6,12 +13,14 @@ const ecc = require("@bitcoinerlab/secp256k1");
 const BIP32Factory = require("bip32").BIP32Factory;
 const bip32 = BIP32Factory(ecc);
 const { getAddressInfo } = require('bitcoin-address-validation');
-// This function used to generate a mnemonic key
+
+
+/** This function used to generate a mnemonic key. */
 exports.generateMnemonic = () => {
     return bip39.generateMnemonic();
 }
 
-// This function used to get network
+/** This function used to get network. */
 exports.getNetwork = () => {
     if (config.network === "testnet") {
         return bitcoin.networks.testnet;
@@ -21,9 +30,11 @@ exports.getNetwork = () => {
     }
     return bitcoin.networks.regtest;
 }
+/** This function is used to get the derivation path from the config. */
 exports.getDerivationPath = () => {
-  return config.network === "testnet" || config.network === "regtest" ? "m/84'/1'/0'" : "m/84'/0'/0'";
+  return config.network === "testnet" || config.network === "regtest" ? config.testnetDerivationPath : config.mainnetDerivationPath;
 }
+/** This function is used to get an unspent list using an address. */
 exports.getUnspents = async (address) => {
     try {
         const result = await axios.get(`${config.blockBookUrl}api/v2/utxo/${address}`, {
@@ -45,26 +56,32 @@ exports.getUnspents = async (address) => {
         }
     }
 }
-exports.getInputs = async (unspents, amount) => {
+/** This function is used to prepare inputs */
+exports.getInputs = async (unspentOutputs, amount) => {
+    let unspents = unspentOutputs.sort((a, b) => Number(b.value) - Number(a.value));
+    console.log("===== CONSOLE LOG ======", unspents);
     let sumAmount = 0;
     let inputs = [];
     for (let i = 0; i < unspents.length; i++) {
-        console.log("=== ELEMENT ===", unspents[i])
         if (sumAmount > amount) break;
-        sumAmount += Number(unspents[i].value);
-        inputs.push(unspents[i])
+        if ((!unspents[i].coinbase && unspents[i].confirmations >= 6) || (unspents[i].coinbase && unspents[i].confirmations >= 100)) {
+            sumAmount += Number(unspents[i].value);
+            nputs.push(unspents[i])
+        }
     }
     return {
         sumAmount,
         inputs,
     }
 }
+/** This function is used to get the child node. */
 exports.getChildNode = (mnemonic) => {
   const seed = bip39.mnemonicToSeedSync(mnemonic)
   const rootKey = bip32.fromSeed(seed, bitcoin.networks.testnet)
   const childNode = rootKey.derivePath("m/84'/1'/0'")
   return childNode.derive(0).derive(0)
 }
+/** This function is used to submit the transaction to the node. */
 exports.sendTransaction = async (hex) => {
     try {
         const result = await axios.get(`${config.blockBookUrl}/api/v2/sendtx/${hex}`, {
@@ -73,7 +90,6 @@ exports.sendTransaction = async (hex) => {
                 "Accept": "application/json",
             }
         })
-        console.log("===== RESULT =====", result.data);
         return {
             status:true,
             message:"successfully submitted the transaction",
@@ -87,10 +103,12 @@ exports.sendTransaction = async (hex) => {
         }
     }
 }
+/** This function is used to get the address type. */
 const getAddressType = (address) => {
     const info = getAddressInfo(address);
     return info.type;
 }
+/** This function is used to calculate the transaction size. */
 exports.calculateTransactionSize = (inputs, outputs) => {
     let size = 11;
     size += inputs.length * 68;
@@ -106,18 +124,17 @@ exports.calculateTransactionSize = (inputs, outputs) => {
             size += 43;
         }
     }
-    console.log("===== TRANSACTION SIZE =====", size);
     return size;
 }
+/** This function is used to get the wallet address. */
 exports.getAddress = (mnemonic, network, derivationPath) => {
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     const root = bip32.fromSeed(seed, network);
     const account = root.derivePath(derivationPath).derive(0);// 0: change index
-    const node = account.derive(parseInt(0));
+    const node = account.derive(Number(config.derivationIndex));
     const address = bitcoin.payments.p2wpkh({
         pubkey: Buffer.from(node.publicKey),
         network: network,
     })
-    console.log("=== ADDRESS ===", address.address)
     return address.address;
 }

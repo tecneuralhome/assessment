@@ -1,3 +1,10 @@
+/**
+ * @file validation.js
+ * @description Validation rules for wallet-related requests using express-validator.
+ * @author Jeya kumar
+ * @version 1.0.0
+ * @date 2025-02-06
+ */
 const { check, validationResult } = require('express-validator');
 const bip39 = require('bip39');
 const { validate } = require('bitcoin-address-validation');
