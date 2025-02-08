@@ -99,7 +99,7 @@ exports.createTransaction = async function (req, res) {
       message:"insufficient funds",
     });
   }
-  let requiredAmount = Number(amount) * 10**8;
+  let requiredAmount = Number(amount) * 10**8 + 5 * 114;
   let finalInputs = [];
   let finalOutputs = [];
   while (true) {
@@ -112,7 +112,6 @@ exports.createTransaction = async function (req, res) {
       });
     }
     let inputAmount = 0;
-    let outputAmount = 0;
     for (let i = 0; i < preparedInputs.inputs.length; i++) {
       const element = preparedInputs.inputs[i];
       inputs.push({
@@ -130,12 +129,11 @@ exports.createTransaction = async function (req, res) {
       address: toAddress,
       value: Math.round(Number(amount) * 10**8),
     }]
-    outputAmount += Math.round(Number(amount) * 10**8);
+    let outputAmount = Math.round(Number(amount) * 10**8);
     let transactionFee = 5 * walletUtils.calculateTransactionSize(inputs, outputs);
     let changeAmount = inputAmount - outputAmount - transactionFee;
     if (inputAmount - outputAmount < transactionFee) {
-      let amountRequired = inputAmount - outputAmount;
-      requiredAmount += transactionFee - amountRequired;
+      requiredAmount += transactionFee;
     } else if (changeAmount === 0 || changeAmount < 0.00001 * 10 ** 8) {
       finalInputs = inputs;
       finalOutputs = outputs;
@@ -146,10 +144,9 @@ exports.createTransaction = async function (req, res) {
         address: fromAddress,
         value: Math.round(changeAmount),
       })
-      outputAmount += Math.round(changeAmount);
       transactionFee = 5 * walletUtils.calculateTransactionSize(inputs, dummyOutputs);
       changeAmount = inputAmount - outputAmount - transactionFee;
-      if (inputAmount - outputAmount >= transactionFee) {
+      if ((inputAmount - outputAmount) >= transactionFee) {
         finalInputs = inputs;
         finalOutputs = [...outputs, {
           address: fromAddress,
@@ -157,8 +154,7 @@ exports.createTransaction = async function (req, res) {
         }];
         break;
       } else {
-        let amountRequired = inputAmount - outputAmount;
-        requiredAmount += transactionFee - amountRequired;
+        requiredAmount += transactionFee;
       }
     }
   }

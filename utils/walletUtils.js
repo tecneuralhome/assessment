@@ -79,7 +79,7 @@ exports.getChildNode = (mnemonic) => {
   const rootKey = bip32.fromSeed(seed, bitcoin.networks.testnet);
   let derivationPath = config.network === "testnet" || config.network === "regtest" ? config.testnetDerivationPath : config.mainnetDerivationPath;
   const childNode = rootKey.derivePath(derivationPath)
-  return childNode.derive(0).derive(config.derivationIndex)
+  return childNode.derive(0).derive(Number(config.derivationIndex))
 }
 /** This function is used to submit the transaction to the node. */
 exports.sendTransaction = async (hex) => {
