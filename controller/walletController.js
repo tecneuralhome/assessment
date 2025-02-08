@@ -23,12 +23,12 @@ bitcoin.initEccLib(ecc);
 /** This function is used to create wallet. */
 exports.createWallet = async function (req, res) {
   const mnemonicKey = walletUtils.generateMnemonic();
-  const address = getAddress(mnemonicKey, walletUtils.getNetwork(), walletUtils.getDerivationPath());
+  const address = walletUtils.getAddress(mnemonicKey, walletUtils.getNetwork(), walletUtils.getDerivationPath());
   res.status(200).json({
     status:true,
     message:"Wallet created successfully!",
     addressInfo: {
-      address: address.address,
+      address: address,
       mnemonic: mnemonicKey,
     },
   });
