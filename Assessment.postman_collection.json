@@ -1,0 +1,152 @@
+{
+	"info": {
+		"_postman_id": "00b4b13a-38e3-462c-9d25-84673edf0b11",
+		"name": "Assessment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40194189"
+	},
+	"item": [
+		{
+			"name": "Create-Wallet",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/create-wallet",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"create-wallet"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get-Wallet-Balance",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "derivationIndex",
+							"value": "2",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/balance?address=tb1qt4jqpkxvn625cyrvverhfgy22tle25zxc0v7vd",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"balance"
+					],
+					"query": [
+						{
+							"key": "address",
+							"value": "tb1qt4jqpkxvn625cyrvverhfgy22tle25zxc0v7vd"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get-Wallet-History",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "derivationIndex",
+							"value": "2",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/history?address=tb1qdgvkazg7rzuyqa4ajemkpqxh06s899n9gup3w3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"history"
+					],
+					"query": [
+						{
+							"key": "address",
+							"value": "tb1qdgvkazg7rzuyqa4ajemkpqxh06s899n9gup3w3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create-Transaction",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "mnemonic",
+							"value": "draw lunar pole artefact truth music velvet script boil observe gaze typical",
+							"type": "text"
+						},
+						{
+							"key": "toAddress",
+							"value": "tb1qdgvkazg7rzuyqa4ajemkpqxh06s899n9gup3w3",
+							"type": "text"
+						},
+						{
+							"key": "amount",
+							"value": "0.00001",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/create-transaction",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"create-transaction"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
