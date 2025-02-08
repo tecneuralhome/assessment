@@ -152,12 +152,15 @@ exports.createTransaction = async function (req, res) {
       // console.log("===== 2.APPROXIMATE SIZE =====", walletUtils.calculateTransactionSize(inputs, dummyOutputs));
       // console.log("===== 2.PSBT SIZE =====", size);
       changeAmount = inputAmount - outputAmount - transactionFee;
-      if ((inputAmount - outputAmount) >= transactionFee) {
+      if ((inputAmount - outputAmount) > transactionFee) {
         finalInputs = inputs;
-        finalOutputs = [...outputs, {
-          address: fromAddress,
-          value: Math.round(changeAmount),
-        }];
+        finalOutputs = [...outputs];
+        if (changeAmount >= 0.00001 * 10 ** 8) {
+          finalOutputs.push({
+            address: fromAddress,
+            value: Math.round(changeAmount),
+          })
+        }
         break;
       } else {
         requiredAmount += transactionFee;
