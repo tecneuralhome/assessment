@@ -13,6 +13,8 @@ const ecc = require("@bitcoinerlab/secp256k1");
 const BIP32Factory = require("bip32").BIP32Factory;
 const bip32 = BIP32Factory(ecc);
 const { getAddressInfo } = require('bitcoin-address-validation');
+const { ECPairFactory } =  require('ecpair');
+const ECPair = ECPairFactory(ecc);
 
 
 /** This function used to generate a mnemonic key. */
@@ -137,4 +139,21 @@ exports.getAddress = (mnemonic, network, derivationPath) => {
         network: network,
     })
     return address.address;
+}
+exports.calculateVirtualSize = (inputs, outputs, network, childNode) => {
+    const psbt = new bitcoin.Psbt({ network });
+    psbt.addInputs(inputs);
+    psbt.addOutputs(outputs);
+    const keyPair = ECPair.fromWIF(childNode.toWIF().toString('hex'), network);
+    for (let index = 0; index < inputs.length; index++) {
+        psbt.signInput(index, {
+            publicKey: Buffer.from(childNode.publicKey),
+            sign: (hash) => {
+                const signature = keyPair.sign(hash);
+                return Buffer.from(signature); 
+            },
+        });
+    }
+    psbt.finalizeAllInputs();
+    return psbt.extractTransaction(true).virtualSize();
 }
