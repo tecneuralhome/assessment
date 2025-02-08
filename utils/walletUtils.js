@@ -60,6 +60,12 @@ exports.getUnspents = async (address) => {
 }
 /** This function is used to prepare inputs */
 exports.getInputs = async (unspentOutputs, amount) => {
+    if (!unspentOutputs || unspentOutputs.length === 0) {
+        return {
+            sumAmount: 0,
+            inputs: [],
+        }
+    }
     let unspents = unspentOutputs.sort((a, b) => Number(b.value) - Number(a.value));
     let sumAmount = 0;
     let inputs = [];
@@ -140,6 +146,8 @@ exports.getAddress = (mnemonic, network, derivationPath) => {
     })
     return address.address;
 }
+
+/** This function is used to build a PSBT transaction and calculate the virtual size. */
 exports.calculateVirtualSize = (inputs, outputs, network, childNode) => {
     const psbt = new bitcoin.Psbt({ network });
     psbt.addInputs(inputs);
