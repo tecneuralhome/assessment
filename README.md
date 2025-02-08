@@ -22,8 +22,7 @@ Before setting up the project, ensure you have the following installed on your s
 PORT=8080
 NETWORK="testnet"
 BLOCKBOOKURL="https://tbtc1.trezor.io/"
-TESTNETDERIVATIONPATH="m/84'/1'/0'"
-MAINNETDERIVATIONPATH="m/84'/0'/0'"
+DERIVATIONPATH="m/84'/1'/0'"
 DERIVATIONINDEX=0
 ```
 

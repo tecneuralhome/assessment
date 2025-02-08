@@ -34,7 +34,7 @@ exports.getNetwork = () => {
 }
 /** This function is used to get the derivation path from the config. */
 exports.getDerivationPath = () => {
-  return config.network === "testnet" || config.network === "regtest" ? config.testnetDerivationPath : config.mainnetDerivationPath;
+  return config.derivationPath;
 }
 /** This function is used to get an unspent list using an address. */
 exports.getUnspents = async (address) => {
@@ -85,8 +85,7 @@ exports.getInputs = async (unspentOutputs, amount) => {
 exports.getChildNode = (mnemonic) => {
   const seed = bip39.mnemonicToSeedSync(mnemonic)
   const rootKey = bip32.fromSeed(seed, bitcoin.networks.testnet);
-  let derivationPath = config.network === "testnet" || config.network === "regtest" ? config.testnetDerivationPath : config.mainnetDerivationPath;
-  const childNode = rootKey.derivePath(derivationPath)
+  const childNode = rootKey.derivePath(config.derivationPath)
   return childNode.derive(0).derive(Number(config.derivationIndex))
 }
 /** This function is used to submit the transaction to the node. */

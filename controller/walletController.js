@@ -130,10 +130,7 @@ exports.createTransaction = async function (req, res) {
       value: Math.round(Number(amount) * 10**8),
     }]
     let outputAmount = Math.round(Number(amount) * 10**8);
-    let transactionFee = 5 * walletUtils.calculateTransactionSize(inputs, outputs);
-    // let size = walletUtils.calculateVirtualSize(inputs, outputs, walletUtils.getNetwork(), walletUtils.getChildNode(mnemonic))
-    // console.log("===== 2.APPROXIMATE SIZE =====", walletUtils.calculateTransactionSize(inputs, outputs));
-    // console.log("===== 2.PSBT SIZE =====", size);
+    let transactionFee = 5 * walletUtils.calculateVirtualSize(inputs, outputs, walletUtils.getNetwork(), walletUtils.getChildNode(mnemonic));
     let changeAmount = inputAmount - outputAmount - transactionFee;
     if (inputAmount - outputAmount < transactionFee) {
       requiredAmount += transactionFee;
@@ -147,10 +144,7 @@ exports.createTransaction = async function (req, res) {
         address: fromAddress,
         value: Math.round(changeAmount),
       })
-      transactionFee = 5 * walletUtils.calculateTransactionSize(inputs, dummyOutputs);
-      // let size = walletUtils.calculateVirtualSize(inputs, dummyOutputs, walletUtils.getNetwork(), walletUtils.getChildNode(mnemonic))
-      // console.log("===== 2.APPROXIMATE SIZE =====", walletUtils.calculateTransactionSize(inputs, dummyOutputs));
-      // console.log("===== 2.PSBT SIZE =====", size);
+      transactionFee = 5 * walletUtils.calculateVirtualSize(inputs, dummyOutputs, walletUtils.getNetwork(), walletUtils.getChildNode(mnemonic));
       changeAmount = inputAmount - outputAmount - transactionFee;
       if ((inputAmount - outputAmount) > transactionFee) {
         finalInputs = inputs;
