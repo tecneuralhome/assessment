@@ -111,11 +111,11 @@ exports.createTransaction = async function (req, res) {
     if (inputAmount - outputAmount < transactionFee) {
       let amountRequired = inputAmount - outputAmount;
       requiredAmount += transactionFee - amountRequired;
-    } else if (changeAmount === 0) {
+    } else if (changeAmount === 0 || changeAmount < 0.00001 * 10 ** 8) {
       finalInputs = inputs;
       finalOutputs = outputs;
       break;
-    } else if (changeAmount >= 0.00001 * 10 ** 8 ) {
+    } else {
       let dummyOutputs = [...outputs];
       dummyOutputs.push({
         address: fromAddress,
@@ -137,11 +137,11 @@ exports.createTransaction = async function (req, res) {
       }
     }
   }
-  psbt.addInputs(inputs);
-  psbt.addOutputs(outputs);
+  psbt.addInputs(finalInputs);
+  psbt.addOutputs(finalOutputs);
   const childNode = walletUtils.getChildNode(mnemonic);
   const keyPair = ECPair.fromWIF(childNode.toWIF().toString('hex'), walletUtils.getNetwork());
-  for (let index = 0; index < inputs.length; index++) {
+  for (let index = 0; index < finalInputs.length; index++) {
     const childNode = walletUtils.getChildNode(mnemonic);
     psbt.signInput(index, {
       publicKey: Buffer.from(childNode.publicKey),

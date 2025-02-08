@@ -59,14 +59,13 @@ exports.getUnspents = async (address) => {
 /** This function is used to prepare inputs */
 exports.getInputs = async (unspentOutputs, amount) => {
     let unspents = unspentOutputs.sort((a, b) => Number(b.value) - Number(a.value));
-    console.log("===== CONSOLE LOG ======", unspents);
     let sumAmount = 0;
     let inputs = [];
     for (let i = 0; i < unspents.length; i++) {
         if (sumAmount > amount) break;
         if ((!unspents[i].coinbase && unspents[i].confirmations >= 6) || (unspents[i].coinbase && unspents[i].confirmations >= 100)) {
             sumAmount += Number(unspents[i].value);
-            nputs.push(unspents[i])
+            inputs.push(unspents[i])
         }
     }
     return {
@@ -77,9 +76,10 @@ exports.getInputs = async (unspentOutputs, amount) => {
 /** This function is used to get the child node. */
 exports.getChildNode = (mnemonic) => {
   const seed = bip39.mnemonicToSeedSync(mnemonic)
-  const rootKey = bip32.fromSeed(seed, bitcoin.networks.testnet)
-  const childNode = rootKey.derivePath("m/84'/1'/0'")
-  return childNode.derive(0).derive(0)
+  const rootKey = bip32.fromSeed(seed, bitcoin.networks.testnet);
+  let derivationPath = config.network === "testnet" || config.network === "regtest" ? config.testnetDerivationPath : config.mainnetDerivationPath;
+  const childNode = rootKey.derivePath(derivationPath)
+  return childNode.derive(0).derive(config.derivationIndex)
 }
 /** This function is used to submit the transaction to the node. */
 exports.sendTransaction = async (hex) => {
