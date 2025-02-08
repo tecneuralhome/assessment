@@ -14,6 +14,7 @@ const config = require("../config/config");
 const { ECPairFactory } =  require('ecpair');
 const ecc = require('tiny-secp256k1');
 const { validate } = require('bitcoin-address-validation');
+const { validationResult } = require('express-validator');
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -34,6 +35,14 @@ exports.createWallet = async function (req, res) {
 };
 /** This function is used to get wallet balance. */
 exports.getBalance = async function (req, res) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      status:true,
+      message:"400 Bad request",
+      errors: errors.array(),
+    });
+  }
   const { address } = req.query;
   const result = await walletUtils.getUnspents(address);
   res.status(result.status ? 200 : 500).json(result);
@@ -41,6 +50,14 @@ exports.getBalance = async function (req, res) {
 
 /** This function is used to get transaction history. */
 exports.getTransactionHistory = async function (req, res) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      status:true,
+      message:"400 Bad request",
+      errors: errors.array(),
+    });
+  }
   const { address } = req.query;
     axios.get(`${config.blockBookUrl}api/v2/address/${address}`, {
     headers: {
@@ -64,6 +81,14 @@ exports.getTransactionHistory = async function (req, res) {
 
 /** This function is used to create transaction. */
 exports.createTransaction = async function (req, res) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      status:true,
+      message:"400 Bad request",
+      errors: errors.array(),
+    });
+  }
   const { mnemonic, toAddress, amount } = req.body;
   const fromAddress = walletUtils.getAddress(mnemonic, walletUtils.getNetwork(), walletUtils.getDerivationPath());
   const psbt = new bitcoin.Psbt({ network: walletUtils.getNetwork() })
@@ -83,7 +108,7 @@ exports.createTransaction = async function (req, res) {
     if (preparedInputs.sumAmount < requiredAmount) {
       return res.status(200).json({
         status:false,
-        message:"insufficient funds",
+        message:"insufficient funds!",
       });
     }
     let inputAmount = 0;
@@ -124,7 +149,7 @@ exports.createTransaction = async function (req, res) {
       outputAmount += Math.round(changeAmount);
       transactionFee = 5 * walletUtils.calculateTransactionSize(inputs, dummyOutputs);
       changeAmount = inputAmount - outputAmount - transactionFee;
-      if (inputAmount - outputAmount > transactionFee) {
+      if (inputAmount - outputAmount >= transactionFee) {
         finalInputs = inputs;
         finalOutputs = [...outputs, {
           address: fromAddress,

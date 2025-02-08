@@ -22,10 +22,6 @@ exports.getBalanceValidation =
         }).withMessage('Invalid Bitcoin address'),
 	// Middleware to handle validation results
 	(req, res, next) => {
-		const errors = validationResult(req);
-		if (!errors.isEmpty()) {
-			return res.status(400).json({ errors: errors.array() });
-		}
 		next();
 	},
 ]
@@ -52,10 +48,6 @@ exports.createTransactionValidation =
     check('amount').trim().notEmpty().withMessage('Amount is required').isFloat({ gt: 0 }).withMessage('Amount must be a positive number'),
 	// Middleware to handle validation results
 	(req, res, next) => {
-		const errors = validationResult(req);
-		if (!errors.isEmpty()) {
-			return res.status(400).json({ errors: errors.array() });
-		}
 		next();
 	},
 ]
